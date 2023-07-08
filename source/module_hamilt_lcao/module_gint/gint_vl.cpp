@@ -360,6 +360,10 @@ void Gint::cal_meshball_vlocal_k(
 				//const int I2 = GlobalC::ucell.iat2ia[iat2];
 				const int mcell_index2 = this->gridt->bcell_start[grid_index] + ia2;
 				const int id2 = this->gridt->which_unitcell[mcell_index2];
+				// in this code, <psi_{mu, 0}|V|psi_{nu, R}> is constructed
+				// id1 and iat1 refer to |psi_{nu, R1}>
+				// id2 and iat2 refer to |psi_{mu, R2}>
+				// R = R1 - R2
 				int offset;
 				offset=find_offset(id1, id2, iat1, iat2);
 
