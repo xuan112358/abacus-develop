@@ -585,6 +585,7 @@ void LCAO_gen_fixedH::build_Nonlocal_mu_new(double* NLloc, const bool &calc_deri
 						}
 				
 						int nnr_inner = 0;
+						//std::cout<<__FILE__<<__LINE__<<" <"<<iat1<<","<<iat2<<","<<rx2<<","<<ry2<<","<<rz2<<">"<<std::endl;
 						
 						for (int j=0; j<atom1->nw*GlobalV::NPOL; j++)
 						{
@@ -614,7 +615,9 @@ void LCAO_gen_fixedH::build_Nonlocal_mu_new(double* NLloc, const bool &calc_deri
 										{
 											const int p1 = GlobalC::ucell.atoms[T0].ncpp.index1_soc[is0][no];
 											const int p2 = GlobalC::ucell.atoms[T0].ncpp.index2_soc[is0][no];
-											nlm_tmp += nlm_1[p1] * nlm_2[p2] * GlobalC::ucell.atoms[T0].ncpp.d_so(is0, p2, p1);
+											// p1 belongs to <psi_{mu, 0}|beta>
+											// p2 belongs to <beta|psi_{nu, R}> 
+											nlm_tmp += nlm_1[p1] * nlm_2[p2] * GlobalC::ucell.atoms[T0].ncpp.d_so(is0, p1, p2);
 										}
 										this->LM->Hloc_fixedR_soc[nnr+nnr_inner] += nlm_tmp;
 									}
@@ -730,6 +733,11 @@ void LCAO_gen_fixedH::build_Nonlocal_mu_new(double* NLloc, const bool &calc_deri
 								nnr_inner++;
 							}// k
 						} // j 
+						/*for(int iii=0;iii<nnr_inner;iii++)
+						{
+							std::cout<<this->LM->Hloc_fixedR_soc[nnr+iii]<<" ";
+						}
+						std::cout<<std::endl;*/
 					} // ad0
 
 					//outer circle : accumulate nnr
