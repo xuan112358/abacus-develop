@@ -71,6 +71,7 @@ void save_npy_d(const int nat,
         const int* inl_l,
 		const bool deepks_equiv,
 		const std::vector<torch::Tensor> &d_tensor,
+		const std::string& out_dir,
 		const int rank);
 
 void save_npy_gvx(const int nat,

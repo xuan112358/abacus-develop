@@ -211,6 +211,7 @@ void LCAO_Deepks_Interface::out_deepks_labels(const double& etot,
                     ld->inl_l,
 					GlobalV::deepks_equiv, 
 					ld->d_tensor, 
+                    GlobalV::global_out_dir,
 					my_rank); // libnpy needed
 		}
     }
@@ -358,6 +359,7 @@ void LCAO_Deepks_Interface::out_deepks_labels(const double& etot,
 									   ld->inl_l,
 									   GlobalV::deepks_equiv, 
                                        ld->d_tensor, 
+                                       GlobalV::global_out_dir,
                                        GlobalV::MY_RANK); // libnpy needed
         }
     }
