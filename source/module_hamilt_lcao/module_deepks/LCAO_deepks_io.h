@@ -125,6 +125,7 @@ void save_npy_v_delta_precalc(const int nat,
 		const int nlocal,
 		const int des_per_atom,
 		const torch::Tensor& v_delta_precalc_tensor,
+		const std::string& out_dir,
 		const int rank);
 
 void save_npy_psialpha(const int nat,
@@ -133,12 +134,14 @@ void save_npy_psialpha(const int nat,
 		const int inlmax,
 		const int lmaxd,
 		const torch::Tensor &psialpha_tensor,
+		const std::string& out_dir,
 		const int rank);
 
 void save_npy_gevdm(const int nat,
 		const int inlmax,
 		const int lmaxd,
 		const torch::Tensor& gevdm_tensor,
+		const std::string& out_dir,
 		const int rank);
 };
 

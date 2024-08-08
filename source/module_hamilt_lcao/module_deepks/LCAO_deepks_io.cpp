@@ -449,6 +449,7 @@ void LCAO_deepks_io::save_npy_v_delta_precalc(const int nat,
                                               const int nlocal, 
                                               const int des_per_atom,
                                               const torch::Tensor& v_delta_precalc_tensor,
+                                              const std::string& out_dir,
                                               const int rank)
 {
     ModuleBase::TITLE("LCAO_deepks_io", "save_npy_v_delta_precalc");
@@ -485,7 +486,8 @@ void LCAO_deepks_io::save_npy_v_delta_precalc(const int nat,
             }
         }
     }
-    npy::SaveArrayAsNumpy("v_delta_precalc.npy", false, 5, gshape, npy_v_delta_precalc);
+    const std::string file_vdpre = out_dir + "deepks_vdpre.npy";
+    npy::SaveArrayAsNumpy(file_vdpre, false, 5, gshape, npy_v_delta_precalc);
     return;
 }
 
@@ -496,6 +498,7 @@ void LCAO_deepks_io::save_npy_psialpha(const int nat,
                                        const int inlmax,
                                        const int lmaxd,
                                        const torch::Tensor &psialpha_tensor,
+                                       const std::string& out_dir,
                                        const int rank)
 {
     ModuleBase::TITLE("LCAO_deepks_io", "save_npy_psialpha");
@@ -530,7 +533,8 @@ void LCAO_deepks_io::save_npy_psialpha(const int nat,
             }
         }
     }
-    npy::SaveArrayAsNumpy("psialpha.npy", false, 5, gshape, npy_psialpha);
+    const std::string file_psialpha = out_dir + "deepks_psialpha.npy";
+    npy::SaveArrayAsNumpy(file_psialpha, false, 5, gshape, npy_psialpha);
     return;
 }
 
@@ -539,6 +543,7 @@ void LCAO_deepks_io::save_npy_gevdm(const int nat,
                                     const int inlmax,
                                     const int lmaxd,
                                     const torch::Tensor& gevdm_tensor,
+                                    const std::string& out_dir,
                                     const int rank)
 {
     ModuleBase::TITLE("LCAO_deepks_io", "save_npy_gevdm");
@@ -575,7 +580,8 @@ void LCAO_deepks_io::save_npy_gevdm(const int nat,
             }                
         }
     }
-    npy::SaveArrayAsNumpy("grad_evdm.npy", false, 5, gshape, npy_gevdm);
+    const std::string file_gevdm = out_dir + "deepks_gevdm.npy";
+    npy::SaveArrayAsNumpy(file_gevdm, false, 5, gshape, npy_gevdm);
     return;
 }
 
