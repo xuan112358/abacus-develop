@@ -60,6 +60,9 @@ class test_deepks
     std::vector<std::vector<double>> dm_new;
     std::vector<std::vector<std::complex<double>>> dm_k_new;
 
+    elecstate::DensityMatrix<double, double>* p_elec_DM;
+    elecstate::DensityMatrix<std::complex<double>, double>* p_elec_DM_k;
+
     // preparation
     void preparation();
     void set_parameters(); // set some global variables
@@ -78,6 +81,10 @@ class test_deepks
     // tranfer Matrix into vector<T>
     void set_dm_new();
     void set_dm_k_new();
+
+    // tranfer vector<T> into DensityMatrix
+    void set_p_elec_DM();
+    void set_p_elec_DM_k();
 
     // checking
     void check_dstable();

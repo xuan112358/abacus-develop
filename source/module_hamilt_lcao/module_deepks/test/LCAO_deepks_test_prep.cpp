@@ -144,7 +144,7 @@ void test_deepks::prep_neighbour()
                          Test_Deepks::GridD,
                          ucell,
                          search_radius,
-                         GlobalV::test_atom_input);
+                         PARAM.inp.test_atom_input);
 }
 
 void test_deepks::set_orbs(const double& lat0_in)
@@ -183,7 +183,7 @@ void test_deepks::set_orbs(const double& lat0_in)
 
         GlobalV::ofs_running << "read and set from orbital_file : " << ORB.orbital_file[it] << std::endl;
         GlobalV::ofs_running << "ucell.ntype, ucell.lmax : " << ucell.ntype << " " << ucell.lmax << std::endl;
-#endif
+
     }
     return;
 }

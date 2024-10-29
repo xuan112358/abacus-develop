@@ -103,19 +103,42 @@ void test_deepks::set_dm_k_new()
     }
 }
 
+void test_deepks::set_p_elec_DM()
+{
+    // gamma
+    int nspin=PARAM.inp.nspin;
+    this->p_elec_DM=new elecstate::DensityMatrix<double, double>(&ParaO,nspin);
+    for (int ik = 0; ik < nspin; ik++)
+    {
+        p_elec_DM->set_DMK_pointer(ik, dm_new[ik].data());
+    }
+}
+
+void test_deepks::set_p_elec_DM_k()
+{
+    // multi k
+    this->p_elec_DM_k=new elecstate::DensityMatrix<std::complex<double>, double>(&ParaO, PARAM.inp.nspin, kv.kvec_d, kv.nkstot / PARAM.inp.nspin);
+    for (int ik = 0; ik < kv.nkstot; ++ik)
+    {
+        p_elec_DM_k->set_DMK_pointer(ik, dm_k_new[ik].data());
+    }
+}
+
 void test_deepks::check_pdm()
 {
     if (PARAM.sys.gamma_only_local)
     {
         this->read_dm();
         this->set_dm_new();
-        this->ld.cal_projected_DM(dm_new, ucell, ORB, Test_Deepks::GridD);
+        this->set_p_elec_DM();
+        this->ld.cal_projected_DM(p_elec_DM, ucell, ORB, Test_Deepks::GridD);
     }
     else
     {
-        this->read_dm_k(kv.get_nkstot());
+        this->read_dm_k(kv.nkstot);
         this->set_dm_k_new();
-        this->ld.cal_projected_DM_k(dm_k_new, ucell, ORB, Test_Deepks::GridD);
+        this->set_p_elec_DM_k();
+        this->ld.cal_projected_DM_k(p_elec_DM_k, ucell, ORB, Test_Deepks::GridD);
     }
     this->ld.check_projected_dm();
     this->compare_with_ref("pdm.dat", "pdm_ref.dat");
@@ -130,7 +153,7 @@ void test_deepks::check_gdmx()
     }
     else
     {
-        this->ld.cal_gdmx_k(dm_k_new, ucell, ORB, Test_Deepks::GridD, kv.get_nkstot(), kv.kvec_d, 0);
+        this->ld.cal_gdmx_k(dm_k_new, ucell, ORB, Test_Deepks::GridD, kv.nkstot, kv.kvec_d, 0);
     }
     this->ld.check_gdmx(ucell.nat);
 
@@ -162,7 +185,7 @@ void test_deepks::check_gdmx()
 void test_deepks::check_descriptor()
 {
     this->ld.cal_descriptor(ucell.nat);
-    this->ld.check_descriptor(ucell);
+    this->ld.check_descriptor(ucell,"./");
     this->compare_with_ref("descriptor.dat", "descriptor_ref.dat");
 }
 
@@ -204,7 +227,7 @@ void test_deepks::check_edelta()
     }
     else
     {
-        this->ld.allocate_V_delta(ucell.nat, kv.get_nkstot());
+        this->ld.allocate_V_delta(ucell.nat, kv.nkstot);
     }
     this->ld.cal_gedm(ucell.nat);
 
@@ -226,7 +249,7 @@ void test_deepks::check_e_deltabands()
     else
     {
         this->folding_nnr(kv);
-        this->ld.cal_e_delta_band_k(dm_k_new, kv.get_nkstot());
+        this->ld.cal_e_delta_band_k(dm_k_new, kv.nkstot);
     }
 
     std::ofstream ofs("E_delta_bands.dat");
@@ -241,13 +264,13 @@ void test_deepks::check_f_delta()
     svnl_dalpha.create(3, 3);
     if (PARAM.sys.gamma_only_local)
     {
-        ld.cal_f_delta_gamma(dm_new, ucell, ORB, Test_Deepks::GridD, 1, svnl_dalpha);
+        DeePKS_domain::cal_f_delta_gamma(dm_new, ucell, ORB, Test_Deepks::GridD, ParaO, this->ld.lmaxd, this->ld.nlm_save, this->ld.gedm, this->ld.inl_index, this->ld.F_delta, 1, svnl_dalpha);
     }
     else
     {
-        ld.cal_f_delta_k(dm_k_new, ucell, ORB, Test_Deepks::GridD, kv.get_nkstot(), kv.kvec_d, 1, svnl_dalpha);
+        DeePKS_domain::cal_f_delta_k(dm_k_new, ucell, ORB, Test_Deepks::GridD, ParaO, this->ld.lmaxd, kv.nkstot, kv.kvec_d, this->ld.nlm_save_k, this->ld.gedm, this->ld.inl_index, this->ld.F_delta, 1, svnl_dalpha);
     }
-    ld.check_f_delta(ucell.nat, svnl_dalpha);
+    DeePKS_domain::check_f_delta(ucell.nat, this->ld.F_delta, svnl_dalpha);
 
     this->compare_with_ref("F_delta.dat", "F_delta_ref.dat");
 }
