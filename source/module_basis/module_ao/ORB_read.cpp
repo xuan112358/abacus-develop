@@ -263,7 +263,7 @@ void LCAO_Orbitals::Read_Orbitals(std::ofstream& ofs_in,
 
         delete[] this->Alpha;
         this->Alpha = new Numerical_Orbital[1]; // not related to atom type -- remain to be discussed
-
+        this->descriptor_file = descriptor_file;
         this->Read_Descriptor(ofs_in, force_flag, my_rank);
     }
 
