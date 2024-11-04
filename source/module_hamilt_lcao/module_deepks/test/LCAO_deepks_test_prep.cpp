@@ -27,6 +27,9 @@ void test_deepks::preparation()
     this->prep_neighbour();
 
     this->ParaO.set_serial(PARAM.sys.nlocal, PARAM.sys.nlocal);
+#ifdef __MPI
+    this->ParaO.set_atomic_trace(ucell.get_iat2iwt(), ucell.nat, PARAM.sys.nlocal);
+#endif
 }
 
 void test_deepks::set_parameters()
@@ -189,6 +192,10 @@ void test_deepks::set_orbs(const double& lat0_in)
 
         double cutoff = orb_.rcut_max() + alpha_.rcut_max();
         int nr = static_cast<int>(cutoff / lcao_dr) + 1;
+
+        orb_.set_uniform_grid(true,nr,cutoff,'i',true);
+        alpha_.set_uniform_grid(true,nr,cutoff,'i',true);
+
         overlap_orb_alpha_.tabulate(orb_, alpha_, 'S', nr, cutoff);
 
         GlobalV::ofs_running << "read and set from orbital_file : " << ORB.orbital_file[it] << std::endl;
