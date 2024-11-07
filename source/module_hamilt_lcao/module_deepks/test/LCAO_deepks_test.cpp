@@ -108,20 +108,24 @@ void test_deepks::set_p_elec_DM()
     // gamma
     int nspin=PARAM.inp.nspin;
     this->p_elec_DM=new elecstate::DensityMatrix<double, double>(&ParaO,nspin);
+    p_elec_DM->init_DMR(&Test_Deepks::GridD, &ucell);
     for (int ik = 0; ik < nspin; ik++)
     {
         p_elec_DM->set_DMK_pointer(ik, dm_new[ik].data());
     }
+    p_elec_DM->cal_DMR();
 }
 
 void test_deepks::set_p_elec_DM_k()
 {
     // multi k
     this->p_elec_DM_k=new elecstate::DensityMatrix<std::complex<double>, double>(&ParaO, PARAM.inp.nspin, kv.kvec_d, kv.nkstot / PARAM.inp.nspin);
+    p_elec_DM_k->init_DMR(&Test_Deepks::GridD, &ucell);
     for (int ik = 0; ik < kv.nkstot; ++ik)
     {
         p_elec_DM_k->set_DMK_pointer(ik, dm_k_new[ik].data());
     }
+    p_elec_DM_k->cal_DMR();
 }
 
 void test_deepks::check_pdm()
@@ -141,7 +145,7 @@ void test_deepks::check_pdm()
         this->ld.cal_projected_DM_k(p_elec_DM_k, ucell, ORB, Test_Deepks::GridD);
     }
     this->ld.check_projected_dm();
-    this->compare_with_ref("pdm.dat", "pdm_ref.dat");
+    this->compare_with_ref("deepks_projdm.dat", "pdm_ref.dat");
 }
 
 void test_deepks::check_gdmx()
@@ -186,7 +190,7 @@ void test_deepks::check_descriptor()
 {
     this->ld.cal_descriptor(ucell.nat);
     this->ld.check_descriptor(ucell,"./");
-    this->compare_with_ref("descriptor.dat", "descriptor_ref.dat");
+    this->compare_with_ref("deepks_desc.dat", "descriptor_ref.dat");
 }
 
 void test_deepks::check_gvx()
