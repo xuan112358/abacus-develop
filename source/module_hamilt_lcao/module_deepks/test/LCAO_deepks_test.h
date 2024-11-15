@@ -101,6 +101,10 @@ class test_deepks
 
     void check_edelta();
 
+    // calculate H_V_delta
+    void cal_H_V_delta();
+    void cal_H_V_delta_k();
+
     void check_e_deltabands();
     void check_f_delta();
 

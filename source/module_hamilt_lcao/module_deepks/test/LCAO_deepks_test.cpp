@@ -2,6 +2,8 @@
 #define private public
 #include "module_parameter/parameter.h"
 #undef private
+#include "module_hamilt_lcao/hamilt_lcaodft/hs_matrix_k.hpp"
+#include "module_hamilt_lcao/hamilt_lcaodft/operator_lcao/deepks_lcao.h"
 namespace Test_Deepks
 {
 Grid_Driver GridD(PARAM.input.test_deconstructor, PARAM.input.test_grid);
@@ -244,15 +246,48 @@ void test_deepks::check_edelta()
     this->compare_with_ref("gedm.dat", "gedm_ref.dat");
 }
 
+void test_deepks::cal_H_V_delta()
+{
+    hamilt::HS_Matrix_K<double>* hsk = new hamilt::HS_Matrix_K<double>(&ParaO);
+    hamilt::HContainer<double>* hR = new hamilt::HContainer<double>(&ParaO);
+    hamilt::Operator<double>* op_deepks = new hamilt::DeePKS<hamilt::OperatorLCAO<double, double>>(hsk,
+                                                            kv.kvec_d,
+                                                            hR, // no explicit call yet
+                                                            &ucell,
+                                                            &Test_Deepks::GridD,
+                                                            &overlap_orb_alpha_,
+                                                            &ORB,
+                                                            kv.nkstot,
+                                                            p_elec_DM);
+    op_deepks->init(kv.nkstot);
+}
+
+void test_deepks::cal_H_V_delta_k()
+{
+    hamilt::HS_Matrix_K<std::complex<double>>* hsk = new hamilt::HS_Matrix_K<std::complex<double>>(&ParaO);
+    hamilt::HContainer<double>* hR = new hamilt::HContainer<double>(&ParaO);
+    hamilt::Operator<std::complex<double>>* op_deepks = new hamilt::DeePKS<hamilt::OperatorLCAO<std::complex<double>, double>>(hsk,
+                                                            kv.kvec_d,
+                                                            hR, // no explicit call yet
+                                                            &ucell,
+                                                            &Test_Deepks::GridD,
+                                                            &overlap_orb_alpha_,
+                                                            &ORB,
+                                                            kv.nkstot,
+                                                            p_elec_DM_k);
+    op_deepks->init(kv.nkstot);
+}
+
 void test_deepks::check_e_deltabands()
 {
     if (PARAM.sys.gamma_only_local)
     {
+        this->cal_H_V_delta();
         this->ld.cal_e_delta_band(dm_new);
     }
     else
     {
-        this->folding_nnr(kv);
+        this->cal_H_V_delta_k();
         this->ld.cal_e_delta_band_k(dm_k_new, kv.nkstot);
     }
 

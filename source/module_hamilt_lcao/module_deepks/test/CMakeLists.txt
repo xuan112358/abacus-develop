@@ -21,8 +21,12 @@ add_executable(
     ../../../module_hamilt_lcao/module_hcontainer/hcontainer.cpp 
     ../../../module_hamilt_lcao/module_hcontainer/atom_pair.cpp
     ../../../module_hamilt_lcao/module_hcontainer/func_transfer.cpp
+    ../../../module_hamilt_lcao/module_hcontainer/func_folding.cpp
     ../../../module_hamilt_lcao/module_hcontainer/transfer.cpp
     ../../../module_hamilt_lcao/hamilt_lcaodft/LCAO_nnr.cpp
+    ../../../module_hamilt_lcao/hamilt_lcaodft/operator_lcao/deepks_lcao.cpp
+    ../../../module_hamilt_lcao/hamilt_lcaodft/operator_lcao/operator_lcao.cpp
+    ../../../module_hamilt_general/operator.cpp
 )
 
 target_link_libraries(
