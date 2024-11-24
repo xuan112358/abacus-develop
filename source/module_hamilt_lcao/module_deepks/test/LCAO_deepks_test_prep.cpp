@@ -154,7 +154,7 @@ void test_deepks::prep_neighbour()
 
     atom_arrange::search(PARAM.inp.search_pbc,
                          GlobalV::ofs_running,
-                         Test_Deepks::GridD,
+                         GlobalC::GridD,
                          ucell,
                          search_radius,
                          PARAM.inp.test_atom_input);

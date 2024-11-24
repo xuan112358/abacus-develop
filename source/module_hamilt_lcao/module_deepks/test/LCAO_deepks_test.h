@@ -14,9 +14,15 @@
 #include <iostream>
 #include <sstream>
 
-namespace Test_Deepks
+// namespace Test_Deepks
+// {
+// extern Grid_Driver GridD;
+// }
+
+namespace GlobalC
 {
-extern Grid_Driver GridD;
+  extern LCAO_Deepks ld;
+  extern Grid_Driver GridD;
 }
 
 class test_deepks
@@ -36,7 +42,7 @@ class test_deepks
 
     Parallel_Orbitals ParaO;
     Test_Deepks::K_Vectors kv;
-    LCAO_Deepks ld;
+    // LCAO_Deepks ld;
 
     int failed_check = 0;
     int total_check = 0;
