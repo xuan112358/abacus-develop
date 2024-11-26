@@ -14,15 +14,14 @@
 #include <iostream>
 #include <sstream>
 
-// namespace Test_Deepks
-// {
-// extern Grid_Driver GridD;
-// }
+namespace Test_Deepks
+{
+extern Grid_Driver GridD;
+}
 
 namespace GlobalC
 {
   extern LCAO_Deepks ld;
-  extern Grid_Driver GridD;
 }
 
 class test_deepks

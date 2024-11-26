@@ -58,6 +58,7 @@ class DeePKS<OperatorLCAO<TK, TR>> : public OperatorLCAO<TK, TR>
     elecstate::DensityMatrix<TK, double>* DM;
 
     const UnitCell* ucell = nullptr;
+    Grid_Driver* gridD = nullptr;
 
     HContainer<TR>* H_V_delta = nullptr;
 

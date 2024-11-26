@@ -24,19 +24,19 @@ void test_deepks::cal_nnr(void)
 		for (int I1 = 0; I1 < ucell.atoms[T1].na; I1++)
 		{
 			tau1 = ucell.atoms[T1].tau[I1];
-			GlobalC::GridD.Find_atom(ucell,  tau1 ,T1, I1);
+			Test_Deepks::GridD.Find_atom(ucell,  tau1 ,T1, I1);
 			const int start1 = ucell.itiaiw2iwt(T1, I1, 0);
 			int nw1 = ucell.atoms[T1].nw;
 
 			// (2) search among all adjacent atoms.
-			for (int ad = 0; ad < GlobalC::GridD.getAdjacentNum()+1; ad++)
+			for (int ad = 0; ad < Test_Deepks::GridD.getAdjacentNum()+1; ad++)
 			{
-				const int T2 = GlobalC::GridD.getType(ad);
-				const int I2 = GlobalC::GridD.getNatom(ad);
+				const int T2 = Test_Deepks::GridD.getType(ad);
+				const int I2 = Test_Deepks::GridD.getNatom(ad);
 				const int start2 = ucell.itiaiw2iwt(T2, I2, 0);
 				int nw2 = ucell.atoms[T2].nw;
 
-				tau2 = GlobalC::GridD.getAdjacentTau(ad);
+				tau2 = Test_Deepks::GridD.getAdjacentTau(ad);
 
 				dtau = tau2 - tau1;
 				double distance = dtau.norm() * ucell.lat0;
@@ -71,12 +71,12 @@ void test_deepks::cal_nnr(void)
 				// mohan fix bug 2012-07-03
 				else if(distance >= rcut)
 				{
-					for (int ad0 = 0; ad0 < GlobalC::GridD.getAdjacentNum()+1; ++ad0)
+					for (int ad0 = 0; ad0 < Test_Deepks::GridD.getAdjacentNum()+1; ++ad0)
 					{
-						const int T0 = GlobalC::GridD.getType(ad0);
-						const int I0 = GlobalC::GridD.getNatom(ad0);
+						const int T0 = Test_Deepks::GridD.getType(ad0);
+						const int I0 = Test_Deepks::GridD.getNatom(ad0);
 					
-						tau0 = GlobalC::GridD.getAdjacentTau(ad0);
+						tau0 = Test_Deepks::GridD.getAdjacentTau(ad0);
 						dtau1 = tau0 - tau1; 
 						double distance1 = dtau1.norm() * ucell.lat0;
 						double rcut1 = ORB.Phi[T1].getRcut() + ucell.infoNL.Beta[T0].get_rcut_max();
@@ -137,18 +137,18 @@ void test_deepks::folding_nnr(const Test_Deepks::K_Vectors &kv)
 			for (int I1 = 0; I1 < atom1->na; ++I1)
 			{
 				tau1 = atom1->tau[I1];
-				GlobalC::GridD.Find_atom(ucell, tau1, T1, I1);
+				Test_Deepks::GridD.Find_atom(ucell, tau1, T1, I1);
 				Atom* atom1 = &ucell.atoms[T1];
 				const int start = ucell.itiaiw2iwt(T1,I1,0);
 
 				// (2) search among all adjacent atoms.
-				for (int ad = 0; ad < GlobalC::GridD.getAdjacentNum()+1; ++ad)
+				for (int ad = 0; ad < Test_Deepks::GridD.getAdjacentNum()+1; ++ad)
 				{
-					const int T2 = GlobalC::GridD.getType(ad);
-					const int I2 = GlobalC::GridD.getNatom(ad);
+					const int T2 = Test_Deepks::GridD.getType(ad);
+					const int I2 = Test_Deepks::GridD.getNatom(ad);
 					Atom* atom2 = &ucell.atoms[T2];
 
-					tau2 = GlobalC::GridD.getAdjacentTau(ad);
+					tau2 = Test_Deepks::GridD.getAdjacentTau(ad);
 					dtau = tau2 - tau1;
 					double distance = dtau.norm() * ucell.lat0;
 					double rcut = ORB.Phi[T1].getRcut() + ORB.Phi[T2].getRcut();
@@ -161,12 +161,12 @@ void test_deepks::folding_nnr(const Test_Deepks::K_Vectors &kv)
 					}
 					else if(distance >= rcut)
 					{
-						for (int ad0 = 0; ad0 < GlobalC::GridD.getAdjacentNum()+1; ++ad0)
+						for (int ad0 = 0; ad0 < Test_Deepks::GridD.getAdjacentNum()+1; ++ad0)
 						{
-							const int T0 = GlobalC::GridD.getType(ad0); 
-							const int I0 = GlobalC::GridD.getNatom(ad0); 
+							const int T0 = Test_Deepks::GridD.getType(ad0); 
+							const int I0 = Test_Deepks::GridD.getNatom(ad0); 
 
-							tau0 = GlobalC::GridD.getAdjacentTau(ad0);
+							tau0 = Test_Deepks::GridD.getAdjacentTau(ad0);
 							dtau1 = tau0 - tau1;
 							dtau2 = tau0 - tau2;
 
@@ -192,7 +192,7 @@ void test_deepks::folding_nnr(const Test_Deepks::K_Vectors &kv)
 						// exp(k dot dR)
 						// dR is the index of box in Crystal coordinates
 						//------------------------------------------------
-						ModuleBase::Vector3<double> dR(GlobalC::GridD.getBox(ad).x, GlobalC::GridD.getBox(ad).y, GlobalC::GridD.getBox(ad).z); 
+						ModuleBase::Vector3<double> dR(Test_Deepks::GridD.getBox(ad).x, Test_Deepks::GridD.getBox(ad).y, Test_Deepks::GridD.getBox(ad).z); 
 						const double arg = ( kv.kvec_d[ik] * dR ) * ModuleBase::TWO_PI;
 						const std::complex<double> kphase = std::complex <double> ( cos(arg),  sin(arg) );
 

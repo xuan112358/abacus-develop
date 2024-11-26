@@ -26,7 +26,7 @@ DeePKS<OperatorLCAO<TK, TR>>::DeePKS(HS_Matrix_K<TK>* hsk_in,
                                      const int& nks_in,
                                      elecstate::DensityMatrix<TK, double>* DM_in)
     : OperatorLCAO<TK, TR>(hsk_in, kvec_d_in, hR_in),
-      DM(DM_in), ucell(ucell_in), 
+      DM(DM_in), ucell(ucell_in), gridD(GridD_in),
       intor_orb_alpha_(intor_orb_alpha), ptr_orb_(ptr_orb), nks(nks_in)
 {
     this->cal_type = calculation_type::lcao_deepks;
@@ -158,7 +158,7 @@ void DeePKS<OperatorLCAO<double, double>>::contributeHR()
     {
         ModuleBase::timer::tick("DeePKS", "contributeHR");
         const Parallel_Orbitals* pv = this->hsk->get_pv();
-        GlobalC::ld.cal_projected_DM(this->DM, *this->ucell, *ptr_orb_, GlobalC::GridD);
+        GlobalC::ld.cal_projected_DM(this->DM, *this->ucell, *ptr_orb_, *this->gridD);
         GlobalC::ld.cal_descriptor(this->ucell->nat);
         GlobalC::ld.cal_gedm(this->ucell->nat);
         // recalculate the H_V_delta
@@ -186,7 +186,7 @@ void DeePKS<OperatorLCAO<std::complex<double>, double>>::contributeHR()
     {
         ModuleBase::timer::tick("DeePKS", "contributeHR");
 
-        GlobalC::ld.cal_projected_DM_k(this->DM, *this->ucell, *ptr_orb_, GlobalC::GridD);
+        GlobalC::ld.cal_projected_DM_k(this->DM, *this->ucell, *ptr_orb_, *this->gridD);
         GlobalC::ld.cal_descriptor(this->ucell->nat);
         // calculate dE/dD
         GlobalC::ld.cal_gedm(this->ucell->nat);
@@ -219,7 +219,7 @@ void DeePKS<OperatorLCAO<std::complex<double>, std::complex<double>>>::contribut
     {
         ModuleBase::timer::tick("DeePKS", "contributeHR");
 
-        GlobalC::ld.cal_projected_DM_k(this->DM, *this->ucell, *ptr_orb_, GlobalC::GridD);
+        GlobalC::ld.cal_projected_DM_k(this->DM, *this->ucell, *ptr_orb_, *this->gridD);
         GlobalC::ld.cal_descriptor(this->ucell->nat);
         // calculate dE/dD
         GlobalC::ld.cal_gedm(this->ucell->nat);

@@ -4,9 +4,9 @@
 #undef private
 #include "module_hamilt_lcao/hamilt_lcaodft/hs_matrix_k.hpp"
 #include "module_hamilt_lcao/hamilt_lcaodft/operator_lcao/deepks_lcao.h"
-namespace GlobalC
+namespace Test_Deepks
 {
-// Grid_Driver GridD(PARAM.input.test_deconstructor, PARAM.input.test_grid);
+Grid_Driver GridD(PARAM.input.test_deconstructor, PARAM.input.test_grid);
 }
 
 test_deepks::test_deepks()
@@ -33,9 +33,9 @@ void test_deepks::check_psialpha()
     }
     GlobalC::ld.init(ORB, ucell.nat, ucell.ntype, ParaO, na);
 
-    GlobalC::ld.build_psialpha(PARAM.input.cal_force, ucell, ORB, GlobalC::GridD, overlap_orb_alpha_);
+    GlobalC::ld.build_psialpha(PARAM.input.cal_force, ucell, ORB, Test_Deepks::GridD, overlap_orb_alpha_);
 
-    GlobalC::ld.check_psialpha(PARAM.input.cal_force, ucell, ORB, GlobalC::GridD);
+    GlobalC::ld.check_psialpha(PARAM.input.cal_force, ucell, ORB, Test_Deepks::GridD);
 
     this->compare_with_ref("psialpha.dat", "psialpha_ref.dat");
     this->compare_with_ref("dpsialpha_x.dat", "dpsialpha_x_ref.dat");
@@ -110,7 +110,7 @@ void test_deepks::set_p_elec_DM()
     // gamma
     int nspin=PARAM.inp.nspin;
     this->p_elec_DM=new elecstate::DensityMatrix<double, double>(&ParaO,nspin);
-    p_elec_DM->init_DMR(&GlobalC::GridD, &ucell);
+    p_elec_DM->init_DMR(&Test_Deepks::GridD, &ucell);
     for (int ik = 0; ik < nspin; ik++)
     {
         p_elec_DM->set_DMK_pointer(ik, dm_new[ik].data());
@@ -122,7 +122,7 @@ void test_deepks::set_p_elec_DM_k()
 {
     // multi k
     this->p_elec_DM_k=new elecstate::DensityMatrix<std::complex<double>, double>(&ParaO, PARAM.inp.nspin, kv.kvec_d, kv.nkstot / PARAM.inp.nspin);
-    p_elec_DM_k->init_DMR(&GlobalC::GridD, &ucell);
+    p_elec_DM_k->init_DMR(&Test_Deepks::GridD, &ucell);
     for (int ik = 0; ik < kv.nkstot; ++ik)
     {
         p_elec_DM_k->set_DMK_pointer(ik, dm_k_new[ik].data());
@@ -137,14 +137,14 @@ void test_deepks::check_pdm()
         this->read_dm();
         this->set_dm_new();
         this->set_p_elec_DM();
-        GlobalC::ld.cal_projected_DM(p_elec_DM, ucell, ORB, GlobalC::GridD);
+        GlobalC::ld.cal_projected_DM(p_elec_DM, ucell, ORB, Test_Deepks::GridD);
     }
     else
     {
         this->read_dm_k(kv.nkstot);
         this->set_dm_k_new();
         this->set_p_elec_DM_k();
-        GlobalC::ld.cal_projected_DM_k(p_elec_DM_k, ucell, ORB, GlobalC::GridD);
+        GlobalC::ld.cal_projected_DM_k(p_elec_DM_k, ucell, ORB, Test_Deepks::GridD);
     }
     GlobalC::ld.check_projected_dm();
     this->compare_with_ref("deepks_projdm.dat", "pdm_ref.dat");
@@ -155,11 +155,11 @@ void test_deepks::check_gdmx()
     GlobalC::ld.init_gdmx(ucell.nat);
     if (PARAM.sys.gamma_only_local)
     {
-        GlobalC::ld.cal_gdmx(dm_new[0], ucell, ORB, GlobalC::GridD, 0);
+        GlobalC::ld.cal_gdmx(dm_new[0], ucell, ORB, Test_Deepks::GridD, 0);
     }
     else
     {
-        GlobalC::ld.cal_gdmx_k(dm_k_new, ucell, ORB, GlobalC::GridD, kv.nkstot, kv.kvec_d, 0);
+        GlobalC::ld.cal_gdmx_k(dm_k_new, ucell, ORB, Test_Deepks::GridD, kv.nkstot, kv.kvec_d, 0);
     }
     GlobalC::ld.check_gdmx(ucell.nat);
 
@@ -254,7 +254,7 @@ void test_deepks::cal_H_V_delta()
                                                             kv.kvec_d,
                                                             hR, // no explicit call yet
                                                             &ucell,
-                                                            &GlobalC::GridD,
+                                                            &Test_Deepks::GridD,
                                                             &overlap_orb_alpha_,
                                                             &ORB,
                                                             kv.nkstot,
@@ -276,7 +276,7 @@ void test_deepks::cal_H_V_delta_k()
         int T0, I0;
         ucell.iat2iait(iat0, &I0, &T0);
         AdjacentAtomInfo adjs;
-        GlobalC::GridD.Find_atom(ucell, tau0, T0, I0, &adjs);
+        Test_Deepks::GridD.Find_atom(ucell, tau0, T0, I0, &adjs);
         std::vector<bool> is_adj(adjs.adj_num + 1, false);
         for (int ad1 = 0; ad1 < adjs.adj_num + 1; ++ad1)
         {
@@ -330,7 +330,7 @@ void test_deepks::cal_H_V_delta_k()
                                                             kv.kvec_d,
                                                             hR, // no explicit call yet
                                                             &ucell,
-                                                            &GlobalC::GridD,
+                                                            &Test_Deepks::GridD,
                                                             &overlap_orb_alpha_,
                                                             &ORB,
                                                             kv.nkstot,
@@ -366,11 +366,11 @@ void test_deepks::check_f_delta()
     svnl_dalpha.create(3, 3);
     if (PARAM.sys.gamma_only_local)
     {
-        DeePKS_domain::cal_f_delta_gamma(dm_new, ucell, ORB, GlobalC::GridD, ParaO, GlobalC::ld.lmaxd, GlobalC::ld.nlm_save, GlobalC::ld.gedm, GlobalC::ld.inl_index, GlobalC::ld.F_delta, 1, svnl_dalpha);
+        DeePKS_domain::cal_f_delta_gamma(dm_new, ucell, ORB, Test_Deepks::GridD, ParaO, GlobalC::ld.lmaxd, GlobalC::ld.nlm_save, GlobalC::ld.gedm, GlobalC::ld.inl_index, GlobalC::ld.F_delta, 1, svnl_dalpha);
     }
     else
     {
-        DeePKS_domain::cal_f_delta_k(dm_k_new, ucell, ORB, GlobalC::GridD, ParaO, GlobalC::ld.lmaxd, kv.nkstot, kv.kvec_d, GlobalC::ld.nlm_save_k, GlobalC::ld.gedm, GlobalC::ld.inl_index, GlobalC::ld.F_delta, 1, svnl_dalpha);
+        DeePKS_domain::cal_f_delta_k(dm_k_new, ucell, ORB, Test_Deepks::GridD, ParaO, GlobalC::ld.lmaxd, kv.nkstot, kv.kvec_d, GlobalC::ld.nlm_save_k, GlobalC::ld.gedm, GlobalC::ld.inl_index, GlobalC::ld.F_delta, 1, svnl_dalpha);
     }
     DeePKS_domain::check_f_delta(ucell.nat, GlobalC::ld.F_delta, svnl_dalpha);
 
