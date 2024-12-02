@@ -79,7 +79,6 @@ Stochastic_Iter<T, Device>::Stochastic_Iter()
 
 template <typename T, typename Device>
 Stochastic_Iter<T, Device>::~Stochastic_Iter(){};
-template class Stochastic_Iter<std::complex<double>, base_device::DEVICE_CPU>;
 
 template <typename T, typename Device>
 void Stochastic_Iter<T, Device>::init(K_Vectors* pkv_in,
@@ -157,6 +156,8 @@ void Stochastic_Iter<T, Device>::cal_storho(Stochastic_WF<T, Device>& stowf,
                                              ModulePW::PW_Basis_K* wfc_basis)
 {
 }
+
+template class Stochastic_Iter<std::complex<double>, base_device::DEVICE_CPU>;
 
 Charge::Charge(){};
 Charge::~Charge(){};
