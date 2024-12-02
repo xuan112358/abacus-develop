@@ -6,6 +6,7 @@
 #include "module_base/timer.h"
 #include "module_hsolver/kernels/dngvd_op.h"
 #include "module_hsolver/kernels/math_kernel_op.h"
+#include "module_base/kernels/dsp/dsp_connector.h"
 
 #include <vector>
 
@@ -25,9 +26,9 @@ Diago_DavSubspace<T, Device>::Diago_DavSubspace(const std::vector<Real>& precond
 {
     this->device = base_device::get_device_type<Device>(this->ctx);
 
-    this->one = this->cs.one;
-    this->zero = this->cs.zero;
-    this->neg_one = this->cs.neg_one;
+    this->one = &one_;
+    this->zero = &zero_;
+    this->neg_one = &neg_one_;
 
     assert(david_ndim_in > 1);
     assert(david_ndim_in * nband_in < nbasis_in * this->diag_comm.nproc);
@@ -182,7 +183,7 @@ int Diago_DavSubspace<T, Device>::diag_once(const HPsiFunc& hpsi_func,
             setmem_complex_op()(this->ctx, psi_in, 0, n_band * psi_in_dmax);
 
 #ifdef __DSP
-    gemm_op_mt<T, Device>()
+    gemm_op_mt<T, Device>()  // In order to not coding another whole template, using this method to minimize the code change.
 #else
     gemm_op<T, Device>()
 #endif
@@ -444,7 +445,12 @@ void Diago_DavSubspace<T, Device>::cal_elem(const int& dim,
 #ifdef __MPI
     if (this->diag_comm.nproc > 1)
     {
+#ifdef __DSP
+        // Only on dsp hardware need an extra space to reduce data
+        dsp_dav_subspace_reduce(hcc, scc, nbase, this->nbase_x, this->notconv, this->diag_comm.comm);
+#else
         auto* swap = new T[notconv * this->nbase_x];
+
         syncmem_complex_op()(this->ctx, this->ctx, swap, hcc + nbase * this->nbase_x, notconv * this->nbase_x);
 
         if (std::is_same<T, double>::value)
@@ -499,6 +505,7 @@ void Diago_DavSubspace<T, Device>::cal_elem(const int& dim,
             }
         }
         delete[] swap;
+#endif
     }
 #endif
 
@@ -559,8 +566,8 @@ void Diago_DavSubspace<T, Device>::diag_zhegvx(const int& nbase,
         }
         else
         {
-            std::vector<std::vector<T>> h_diag(nbase, std::vector<T>(nbase, cs.zero[0]));
-            std::vector<std::vector<T>> s_diag(nbase, std::vector<T>(nbase, cs.zero[0]));
+            std::vector<std::vector<T>> h_diag(nbase, std::vector<T>(nbase, *this->zero));
+            std::vector<std::vector<T>> s_diag(nbase, std::vector<T>(nbase, *this->zero));
 
             for (size_t i = 0; i < nbase; i++)
             {
@@ -589,10 +596,10 @@ void Diago_DavSubspace<T, Device>::diag_zhegvx(const int& nbase,
 
                 for (size_t j = nbase; j < this->nbase_x; j++)
                 {
-                    hcc[i * this->nbase_x + j] = cs.zero[0];
-                    hcc[j * this->nbase_x + i] = cs.zero[0];
-                    scc[i * this->nbase_x + j] = cs.zero[0];
-                    scc[j * this->nbase_x + i] = cs.zero[0];
+                    hcc[i * this->nbase_x + j] = *this->zero;
+                    hcc[j * this->nbase_x + i] = *this->zero;
+                    scc[i * this->nbase_x + j] = *this->zero;
+                    scc[j * this->nbase_x + i] = *this->zero;
                 }
             }
         }

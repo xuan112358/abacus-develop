@@ -10,6 +10,7 @@
 template <typename FPTYPE, typename Device>
 void Stress_Func<FPTYPE, Device>::stress_loc(ModuleBase::matrix& sigma,
                                              ModulePW::PW_Basis* rho_basis,
+											 const ModuleBase::matrix& vloc,
                                              const Structure_Factor* p_sf,
                                              const bool is_pw,
                                              const Charge* const chr)
@@ -23,10 +24,10 @@ void Stress_Func<FPTYPE, Device>::stress_loc(ModuleBase::matrix& sigma,
 
 	const int nspin_rho = (PARAM.inp.nspin == 2) ? 2 : 1;
 
-	if (PARAM.globalv.gamma_only_pw && is_pw) { fact=2.0;
-}
-
-    
+	if (PARAM.inp.gamma_only && is_pw) 
+	{ 
+		fact=2.0;
+	}
 
 	std::vector<std::complex<FPTYPE>> aux(rho_basis->nmaxgr);
 
@@ -52,11 +53,11 @@ void Stress_Func<FPTYPE, Device>::stress_loc(ModuleBase::matrix& sigma,
 				aux[ir] = std::complex<FPTYPE>(chr->rho[0][ir], 0.0 );
 			}
 		}
-		for (int is = 1; is < nspin_rho; is++)
+		if(nspin_rho == 2)
 		{
 			for (int ir = irb; ir < ir_end; ++ir)
 			{ // accumulate aux
-				aux[ir] += std::complex<FPTYPE>(chr->rho[is][ir], 0.0 );
+				aux[ir] += std::complex<FPTYPE>(chr->rho[1][ir], 0.0 );
 			}
 		}
  	}
@@ -73,10 +74,10 @@ void Stress_Func<FPTYPE, Device>::stress_loc(ModuleBase::matrix& sigma,
 			for (int ig=0; ig<rho_basis->npw; ig++)
 			{
                 if (rho_basis->ig_gge0 == ig) {
-                    evloc += GlobalC::ppcell.vloc(it, rho_basis->ig2igg[ig])
+                    evloc += vloc(it, rho_basis->ig2igg[ig])
                              * (p_sf->strucFac(it, ig) * conj(aux[ig])).real();
                 } else {
-                    evloc += GlobalC::ppcell.vloc(it, rho_basis->ig2igg[ig])
+                    evloc += vloc(it, rho_basis->ig2igg[ig])
                              * (p_sf->strucFac(it, ig) * conj(aux[ig]) * fact).real();
 }
             }

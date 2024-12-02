@@ -16,7 +16,8 @@
 #include "module_hamilt_lcao/hamilt_lcaodft/pulay_force_stress.h"
 
 template <>
-void Force_LCAO<double>::allocate(const Parallel_Orbitals& pv,
+void Force_LCAO<double>::allocate(const UnitCell& ucell,
+                                  const Parallel_Orbitals& pv,
                                   ForceStressArrays& fsr, // mohan add 2024-06-15
                                   const TwoCenterBundle& two_center_bundle,
                                   const LCAO_Orbitals& orb,
@@ -75,7 +76,7 @@ void Force_LCAO<double>::allocate(const Parallel_Orbitals& pv,
                               'S',
                               cal_deri,
                               PARAM.inp.cal_stress,
-                              GlobalC::ucell,
+                              ucell,
                               orb,
                               pv,
                               two_center_bundle,
@@ -99,21 +100,12 @@ void Force_LCAO<double>::allocate(const Parallel_Orbitals& pv,
                               'T',
                               cal_deri,
                               PARAM.inp.cal_stress,
-                              GlobalC::ucell,
+                              ucell,
                               orb,
                               pv,
                               two_center_bundle,
                               &GlobalC::GridD,
                               nullptr);
-
-    LCAO_domain::build_Nonlocal_mu_new(pv,
-                                       fsr,
-                                       nullptr,
-                                       cal_deri,
-                                       GlobalC::ucell,
-                                       orb,
-                                       *(two_center_bundle.overlap_orb_beta),
-                                       &GlobalC::GridD);
 
     // calculate asynchronous S matrix to output for Hefei-NAMD
     if (PARAM.inp.cal_syns)
@@ -214,7 +206,7 @@ void Force_LCAO<double>::ftable(const bool isforce,
 
     // allocate DSloc_x, DSloc_y, DSloc_z
     // allocate DHloc_fixed_x, DHloc_fixed_y, DHloc_fixed_z
-    this->allocate(pv, fsr, two_center_bundle, orb);
+    this->allocate(ucell,pv, fsr, two_center_bundle, orb);
 
     const double* dSx[3] = { fsr.DSloc_x, fsr.DSloc_y, fsr.DSloc_z };
     const double* dSxy[6] = { fsr.DSloc_11, fsr.DSloc_12, fsr.DSloc_13, fsr.DSloc_22, fsr.DSloc_23, fsr.DSloc_33 };
@@ -227,17 +219,6 @@ void Force_LCAO<double>::ftable(const bool isforce,
     const double* dHxy[6] = { fsr.DHloc_fixed_11, fsr.DHloc_fixed_12, fsr.DHloc_fixed_13, fsr.DHloc_fixed_22, fsr.DHloc_fixed_23, fsr.DHloc_fixed_33 };
     //tvnl_dphi
     PulayForceStress::cal_pulay_fs(ftvnl_dphi, stvnl_dphi, *dm, ucell, pv, dHx, dHxy, isforce, isstress);
-
-    this->cal_fvnl_dbeta(dm,
-                         pv,
-                         ucell,
-                         orb,
-                         *(two_center_bundle.overlap_orb_beta),
-                         GlobalC::GridD,
-                         isforce,
-                         isstress,
-                         fvnl_dbeta,
-                         svnl_dbeta);
 
     // vl_dphi
     PulayForceStress::cal_pulay_fs(fvl_dphi, svl_dphi, *dm, ucell, pelec->pot, gint, isforce, isstress, false/*reset dm to gint*/);

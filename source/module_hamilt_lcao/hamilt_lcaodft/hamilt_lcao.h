@@ -30,6 +30,7 @@ class HamiltLCAO : public Hamilt<TK>
       using TAC = std::pair<int, std::array<int, 3>>;
       HamiltLCAO(Gint_Gamma* GG_in,
           Gint_k* GK_in,
+          const UnitCell& ucell,
           const Parallel_Orbitals* paraV,
           elecstate::Potential* pot_in,
           const K_Vectors& kv_in,
@@ -37,6 +38,7 @@ class HamiltLCAO : public Hamilt<TK>
           const LCAO_Orbitals& orb,
           elecstate::DensityMatrix<TK, double>* DM_in
 #ifdef __EXX
+          , const int istep
           , int* exx_two_level_step = nullptr
           , std::vector<std::map<int, std::map<TAC, RI::Tensor<double>>>>* Hexxd = nullptr
           , std::vector<std::map<int, std::map<TAC, RI::Tensor<std::complex<double>>>>>* Hexxc = nullptr
@@ -45,7 +47,11 @@ class HamiltLCAO : public Hamilt<TK>
     /**
      * @brief Constructor of vacuum Operators, only HR and SR will be initialed as empty HContainer
      */
-    HamiltLCAO(const Parallel_Orbitals* paraV, const K_Vectors& kv_in, const TwoCenterIntegrator& intor_overlap_orb, const std::vector<double>& orb_cutoff);
+    HamiltLCAO(const UnitCell& ucell,  
+               const Parallel_Orbitals* paraV, 
+               const K_Vectors& kv_in, 
+               const TwoCenterIntegrator& intor_overlap_orb, 
+               const std::vector<double>& orb_cutoff);
 
     ~HamiltLCAO()
     {
@@ -104,6 +110,8 @@ class HamiltLCAO : public Hamilt<TK>
 
     /// current_spin for NSPIN=2, 0: hamiltonian for spin up, 1: hamiltonian for spin down
     int current_spin = 0;
+
+    const int istep = 0;
 
     // sk and hk will be refactored to HamiltLCAO later
     // std::vector<TK> sk;

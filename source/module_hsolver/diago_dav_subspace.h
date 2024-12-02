@@ -139,12 +139,22 @@ class Diago_DavSubspace
 
     bool test_exit_cond(const int& ntry, const int& notconv, const bool& scf);
 
+#ifdef __DSP
+    using resmem_complex_op = base_device::memory::resize_memory_op_mt<T, Device>;
+    using delmem_complex_op = base_device::memory::delete_memory_op_mt<T, Device>;
+#else
     using resmem_complex_op = base_device::memory::resize_memory_op<T, Device>;
     using delmem_complex_op = base_device::memory::delete_memory_op<T, Device>;
+#endif
     using setmem_complex_op = base_device::memory::set_memory_op<T, Device>;
 
+#ifdef __DSP
+    using resmem_real_op = base_device::memory::resize_memory_op_mt<Real, Device>;
+    using delmem_real_op = base_device::memory::delete_memory_op_mt<Real, Device>;
+#else
     using resmem_real_op = base_device::memory::resize_memory_op<Real, Device>;
     using delmem_real_op = base_device::memory::delete_memory_op<Real, Device>;
+#endif
     using setmem_real_op = base_device::memory::set_memory_op<Real, Device>;
 
     using resmem_real_h_op = base_device::memory::resize_memory_op<Real, base_device::DEVICE_CPU>;
@@ -158,8 +168,8 @@ class Diago_DavSubspace
     using syncmem_h2d_op = base_device::memory::synchronize_memory_op<T, Device, base_device::DEVICE_CPU>;
     using syncmem_d2h_op = base_device::memory::synchronize_memory_op<T, base_device::DEVICE_CPU, Device>;
 
-    const_nums<T> cs;
     const T *one = nullptr, *zero = nullptr, *neg_one = nullptr;
+    const T one_ = static_cast<T>(1.0), zero_ = static_cast<T>(0.0), neg_one_ = static_cast<T>(-1.0);
 };
 
 } // namespace hsolver
