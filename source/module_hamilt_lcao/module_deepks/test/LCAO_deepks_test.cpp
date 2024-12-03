@@ -269,62 +269,6 @@ void test_deepks::cal_H_V_delta_k()
 {
     hamilt::HS_Matrix_K<std::complex<double>>* hsk = new hamilt::HS_Matrix_K<std::complex<double>>(&ParaO);
     hamilt::HContainer<double>* hR = new hamilt::HContainer<double>(&ParaO);
-    
-    // for (int iat0 = 0; iat0 < ucell.nat; iat0++)
-    // {
-    //     auto tau0 = ucell.get_tau(iat0);
-    //     int T0, I0;
-    //     ucell.iat2iait(iat0, &I0, &T0);
-    //     AdjacentAtomInfo adjs;
-    //     Test_Deepks::GridD.Find_atom(ucell, tau0, T0, I0, &adjs);
-    //     std::vector<bool> is_adj(adjs.adj_num + 1, false);
-    //     for (int ad1 = 0; ad1 < adjs.adj_num + 1; ++ad1)
-    //     {
-    //         const int T1 = adjs.ntype[ad1];
-    //         const int I1 = adjs.natom[ad1];
-    //         const int iat1 = ucell.itia2iat(T1, I1);
-    //         const ModuleBase::Vector3<double>& tau1 = adjs.adjacent_tau[ad1];
-    //         const ModuleBase::Vector3<int>& R_index1 = adjs.box[ad1];
-    //         // choose the real adjacent atoms
-    //         // Note: the distance of atoms should less than the cutoff radius,
-    //         // When equal, the theoretical value of matrix element is zero,
-    //         // but the calculated value is not zero due to the numerical error, which would lead to result changes.
-    //         if (this->ucell.cal_dtau(iat0, iat1, R_index1).norm() * this->ucell.lat0
-    //             < ORB.Phi[T1].getRcut() + ORB.Alpha[0].getRcut())
-    //         {
-    //             is_adj[ad1] = true;
-    //         }
-    //     }
-    //     filter_adjs(is_adj, adjs);
-    //     std::vector<AdjacentAtomInfo> adjs_all;
-    //     adjs_all.push_back(adjs);
-    //     for (int ad1 = 0; ad1 < adjs.adj_num + 1; ++ad1)
-    //     {
-    //         const int T1 = adjs.ntype[ad1];
-    //         const int I1 = adjs.natom[ad1];
-    //         const int iat1 = ucell.itia2iat(T1, I1);
-    //         const ModuleBase::Vector3<int>& R_index1 = adjs.box[ad1];
-    //         for (int ad2 = 0; ad2 < adjs.adj_num + 1; ++ad2)
-    //         {
-    //             const int T2 = adjs.ntype[ad2];
-    //             const int I2 = adjs.natom[ad2];
-    //             const int iat2 = ucell.itia2iat(T2, I2);
-    //             ModuleBase::Vector3<int>& R_index2 = adjs.box[ad2];
-    //             if (ParaO.get_col_size(iat2) <= 0 || ParaO.get_row_size(iat1) <= 0)
-    //             {
-    //                 continue;
-    //             }
-    //             hamilt::AtomPair<double> tmp(iat1,
-    //                                      iat2,
-    //                                      R_index2.x - R_index1.x,
-    //                                      R_index2.y - R_index1.y,
-    //                                      R_index2.z - R_index1.z,
-    //                                      &ParaO);
-    //             hR->insert_pair(tmp);
-    //         }
-    //     }
-    // }
-    // hR->allocate(nullptr, true);
 
     hamilt::Operator<std::complex<double>>* op_deepks = new hamilt::DeePKS<hamilt::OperatorLCAO<std::complex<double>, double>>(hsk,
                                                             kv.kvec_d,

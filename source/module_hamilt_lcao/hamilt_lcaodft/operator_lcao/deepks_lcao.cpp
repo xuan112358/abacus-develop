@@ -125,7 +125,7 @@ void hamilt::DeePKS<hamilt::OperatorLCAO<TK, TR>>::initialize_HR(Grid_Driver* Gr
                                          paraV);
                 // if (std::is_same<TK, double>::value)
                 // {
-                    this->H_V_delta->insert_pair(tmp);
+                this->H_V_delta->insert_pair(tmp);
                 // }
             }
         }
@@ -139,10 +139,11 @@ void hamilt::DeePKS<hamilt::OperatorLCAO<TK, TR>>::initialize_HR(Grid_Driver* Gr
     // {
         // only gamma-only has full size of Hamiltonian of DeePKS now,
         // multi-k keep same size of nonlocal operator, H_V_delta will be allocated by hR
-        this->H_V_delta->allocate(nullptr, true);
+    this->H_V_delta->allocate(nullptr, true);
         // expand hR with H_V_delta, only gamma-only case now
-        this->hR->add(*this->H_V_delta);
-        this->hR->allocate(nullptr, false);
+        // update : for computational rigor, gamma-only and multi-k cases both have full size of Hamiltonian of DeePKS now
+    this->hR->add(*this->H_V_delta);
+    this->hR->allocate(nullptr, false);
     // }
 
     ModuleBase::timer::tick("DeePKS", "initialize_HR");
