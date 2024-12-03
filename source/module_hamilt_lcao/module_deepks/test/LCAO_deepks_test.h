@@ -57,7 +57,6 @@ class test_deepks
 
     int lmax = 2;
     int ntype = 0;
-    int nnr;
 
     std::vector<ModuleBase::matrix> dm;
     std::vector<ModuleBase::ComplexMatrix> dm_k;
@@ -79,9 +78,6 @@ class test_deepks
     void prep_neighbour();
     void setup_kpt();
     void set_orbs(const double& lat0_in);
-
-    void cal_nnr();
-    void folding_nnr(const Test_Deepks::K_Vectors& kv);
 
     // tranfer Matrix into vector<T>
     void set_dm_new();

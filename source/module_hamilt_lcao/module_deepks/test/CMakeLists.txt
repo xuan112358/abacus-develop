@@ -1,6 +1,6 @@
 add_executable(
     test_deepks
-    main_deepks.cpp klist_1.cpp LCAO_deepks_test_prep.cpp LCAO_deepks_test.cpp nnr.cpp
+    main_deepks.cpp klist_1.cpp LCAO_deepks_test_prep.cpp LCAO_deepks_test.cpp
     ../../../module_cell/unitcell.cpp
     ../../../module_cell/atom_spec.cpp
     ../../../module_cell/atom_pseudo.cpp
