@@ -77,7 +77,7 @@ class test_deepks
 
     void prep_neighbour();
     void setup_kpt();
-    void set_orbs(const double& lat0_in);
+    void set_orbs();
 
     // tranfer Matrix into vector<T>
     void set_dm_new();

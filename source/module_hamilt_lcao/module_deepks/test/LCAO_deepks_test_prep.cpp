@@ -23,13 +23,15 @@ void test_deepks::preparation()
     this->setup_kpt();
 
     this->set_ekcut();
-    this->set_orbs(ucell.lat0);
+    this->set_orbs();
     this->prep_neighbour();
 
     this->ParaO.set_serial(PARAM.sys.nlocal, PARAM.sys.nlocal);
-#ifdef __MPI
+    this->ParaO.nrow_bands = PARAM.sys.nlocal;
+    this->ParaO.ncol_bands = PARAM.inp.nbands;
+    // Zhang Xiaoyang enable the serial version of LCAO and recovered this function usage. 2024-07-06
+
     this->ParaO.set_atomic_trace(ucell.get_iat2iwt(), ucell.nat, PARAM.sys.nlocal);
-#endif
 }
 
 void test_deepks::set_parameters()
@@ -160,48 +162,41 @@ void test_deepks::prep_neighbour()
                          PARAM.inp.test_atom_input);
 }
 
-void test_deepks::set_orbs(const double& lat0_in)
+void test_deepks::set_orbs()
 {
-    for (int it = 0; it < ntype; it++)
-    {
-        ORB.init(GlobalV::ofs_running,
-                           ucell.ntype,
-                           PARAM.inp.orbital_dir,
-                           ucell.orbital_fn,
-                           ucell.descriptor_file,
-                           ucell.lmax,
-                           lcao_ecut,
-                           lcao_dk,
-                           lcao_dr,
-                           lcao_rmax,
-                           PARAM.sys.deepks_setorb,
-                           out_mat_r,
-                           PARAM.input.cal_force,
-                           my_rank);
+    ORB.init(GlobalV::ofs_running,
+                        ucell.ntype,
+                        PARAM.inp.orbital_dir,
+                        ucell.orbital_fn,
+                        ucell.descriptor_file,
+                        ucell.lmax,
+                        lcao_ecut,
+                        lcao_dk,
+                        lcao_dr,
+                        lcao_rmax,
+                        PARAM.sys.deepks_setorb,
+                        out_mat_r,
+                        PARAM.input.cal_force,
+                        my_rank);
 
-        ucell.infoNL.setupNonlocal(ucell.ntype, ucell.atoms, GlobalV::ofs_running, ORB);
+    std::vector<std::string> file_orb(ntype);
+    std::transform(ucell.orbital_fn, ucell.orbital_fn + ntype, file_orb.begin(), [](const std::string& file) {
+        return PARAM.inp.orbital_dir + file;
+    });
+    orb_.build(ntype, file_orb.data());
 
-        std::vector<std::string> file_orb(ntype);
-        std::transform(ucell.orbital_fn, ucell.orbital_fn + ntype, file_orb.begin(), [](const std::string& file) {
-            return PARAM.inp.orbital_dir + file;
-        });
-        orb_.build(ntype, file_orb.data());
+    std::string file_alpha = PARAM.inp.orbital_dir + ucell.descriptor_file;
+    alpha_.build(1, &file_alpha);
 
-        std::string file_alpha = PARAM.inp.orbital_dir + ucell.descriptor_file;
-        alpha_.build(1, &file_alpha);
+    double rmax = std::max(orb_.rcut_max(), alpha_.rcut_max());
+    double cutoff = 2.0 * rmax;
+    int nr = static_cast<int>(rmax / lcao_dr) + 1;
 
-        double cutoff = orb_.rcut_max() + alpha_.rcut_max();
-        int nr = static_cast<int>(cutoff / lcao_dr) + 1;
+    orb_.set_uniform_grid(true,nr,cutoff,'i',true);
+    alpha_.set_uniform_grid(true,nr,cutoff,'i',true);
 
-        orb_.set_uniform_grid(true,nr,cutoff,'i',true);
-        alpha_.set_uniform_grid(true,nr,cutoff,'i',true);
+    overlap_orb_alpha_.tabulate(orb_, alpha_, 'S', nr, cutoff);
 
-        overlap_orb_alpha_.tabulate(orb_, alpha_, 'S', nr, cutoff);
-
-        GlobalV::ofs_running << "read and set from orbital_file : " << ORB.orbital_file[it] << std::endl;
-        GlobalV::ofs_running << "ucell.ntype, ucell.lmax : " << ucell.ntype << " " << ucell.lmax << std::endl;
-
-    }
     return;
 }
 
