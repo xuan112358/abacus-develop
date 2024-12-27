@@ -10,7 +10,6 @@ Magnetism::~Magnetism(){};
 namespace GlobalC
 {
 	Exx_Info exx_info;
-    UnitCell ucell;
 }
 
 void test_deepks::preparation()

@@ -45,9 +45,6 @@ void LCAO_Deepks::cal_descriptor(const int nat) {
         return;
     }
 
-    // init pdm_tensor and d_tensor
-    torch::Tensor tmp;
-
     // if pdm_tensor and d_tensor is not empty, clear it !!
     if (!this->d_tensor.empty()) 
     {
@@ -63,23 +60,15 @@ void LCAO_Deepks::cal_descriptor(const int nat) {
     for (int inl = 0; inl < this->inlmax; ++inl) 
     {
         const int nm = 2 * inl_l[inl] + 1;
-        tmp = torch::ones({nm, nm},
-                          torch::TensorOptions().dtype(torch::kFloat64));
 
-        for (int m1 = 0; m1 < nm; ++m1) 
-        {
-            for (int m2 = 0; m2 < nm; ++m2) 
-            {
-                tmp.index_put_({m1, m2}, this->pdm[inl][m1 * nm + m2]);
-            }
-        }
+        torch::TensorOptions options = torch::TensorOptions()
+            .dtype(torch::kFloat64)
+            .requires_grad(true); 
 
-        // torch::Tensor tmp = torch::from_blob(this->pdm[inl], { nm, nm },
-        // torch::requires_grad());
+        torch::Tensor tmp = torch::from_blob(this->pdm[inl], { nm, nm }, options).clone();
 
-        tmp.requires_grad_(true);
         this->pdm_tensor.push_back(tmp);
-        this->d_tensor.push_back(torch::ones({nm}, torch::requires_grad(true)));
+        this->d_tensor.push_back(torch::ones({nm}, options));
     }
 
     // cal d_tensor
