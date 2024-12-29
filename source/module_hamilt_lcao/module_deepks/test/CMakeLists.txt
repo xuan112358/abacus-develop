@@ -5,7 +5,7 @@ add_executable(
     ../../../module_cell/atom_spec.cpp
     ../../../module_cell/atom_pseudo.cpp
     ../../../module_cell/read_atoms.cpp
-    ../../../module_cell/read_cell_pseudopots.cpp
+    ../../../module_cell/setup_nonlocal.cpp
     ../../../module_cell/pseudo.cpp
     ../../../module_cell/read_pp.cpp
     ../../../module_cell/read_pp_complete.cpp
@@ -13,9 +13,10 @@ add_executable(
     ../../../module_cell/read_pp_upf201.cpp
     ../../../module_cell/read_pp_vwr.cpp
     ../../../module_cell/read_pp_blps.cpp
-    ../../../module_cell/setup_nonlocal.cpp
     ../../../module_hamilt_pw/hamilt_pwdft/soc.cpp
     ../../../module_io/output.cpp
+    ../../../module_elecstate/read_pseudo.cpp
+    ../../../module_elecstate/cal_nelec_nband.cpp
     ../../../module_elecstate/module_dm/density_matrix.cpp
     ../../../module_elecstate/module_dm/density_matrix_io.cpp
     ../../../module_hamilt_lcao/module_hcontainer/base_matrix.cpp 

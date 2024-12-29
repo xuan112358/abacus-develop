@@ -3,10 +3,15 @@
 #define private public
 #include "module_parameter/parameter.h"
 #undef private
+#include "module_elecstate/read_pseudo.h"
 #include "module_hamilt_general/module_xc/exx_info.h"
 
-Magnetism::Magnetism(){};
-Magnetism::~Magnetism(){};
+Magnetism::Magnetism() {
+    this->tot_magnetization = 0.0;
+    this->abs_magnetization = 0.0;
+    this->start_magnetization = nullptr;
+}
+Magnetism::~Magnetism() { delete[] this->start_magnetization; }
 namespace GlobalC
 {
 	Exx_Info exx_info;
@@ -25,12 +30,12 @@ void test_deepks::preparation()
     this->set_orbs();
     this->prep_neighbour();
 
-    this->ParaO.set_serial(PARAM.sys.nlocal, PARAM.sys.nlocal);
-    this->ParaO.nrow_bands = PARAM.sys.nlocal;
+    this->ParaO.set_serial(PARAM.globalv.nlocal, PARAM.globalv.nlocal);
+    this->ParaO.nrow_bands = PARAM.globalv.nlocal;
     this->ParaO.ncol_bands = PARAM.inp.nbands;
     // Zhang Xiaoyang enable the serial version of LCAO and recovered this function usage. 2024-07-06
 
-    this->ParaO.set_atomic_trace(ucell.get_iat2iwt(), ucell.nat, PARAM.sys.nlocal);
+    this->ParaO.set_atomic_trace(ucell.get_iat2iwt(), ucell.nat, PARAM.globalv.nlocal);
 }
 
 void test_deepks::set_parameters()
@@ -140,7 +145,7 @@ void test_deepks::set_ekcut()
 void test_deepks::setup_cell()
 {
     ucell.setup_cell("STRU", GlobalV::ofs_running);
-    ucell.read_pseudo(GlobalV::ofs_running);
+    elecstate::read_pseudo(GlobalV::ofs_running, ucell);
 
     return;
 }

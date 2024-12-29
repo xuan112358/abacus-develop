@@ -89,7 +89,7 @@ class test_deepks
 
     // checking
     void check_dstable();
-    void check_psialpha();
+    void check_phialpha();
 
     void read_dm();
     void read_dm_k(const int nks);
@@ -107,7 +107,7 @@ class test_deepks
     void cal_H_V_delta_k();
 
     void check_e_deltabands();
-    void check_f_delta();
+    void check_f_delta_and_stress_delta();
 
     // compares numbers stored in two files
     void compare_with_ref(const std::string f1, const std::string f2);

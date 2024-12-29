@@ -45,7 +45,7 @@ namespace hamilt
 
 template <typename TK, typename TR>
 HamiltLCAO<TK, TR>::HamiltLCAO(const UnitCell& ucell,
-                               Grid_Driver& grid_d,
+                               const Grid_Driver& grid_d,
                                const Parallel_Orbitals* paraV,
                                const K_Vectors& kv_in,
                                const TwoCenterIntegrator& intor_overlap_orb,
@@ -74,7 +74,7 @@ template <typename TK, typename TR>
 HamiltLCAO<TK, TR>::HamiltLCAO(Gint_Gamma* GG_in,
                                Gint_k* GK_in,
                                const UnitCell& ucell,
-                               Grid_Driver& grid_d,
+                               const Grid_Driver& grid_d,
                                const Parallel_Orbitals* paraV,
                                elecstate::Potential* pot_in,
                                const K_Vectors& kv_in,
@@ -192,7 +192,7 @@ HamiltLCAO<TK, TR>::HamiltLCAO(Gint_Gamma* GG_in,
                                                                     this->hR, // no explicit call yet
                                                                     &ucell,
                                                                     orb.cutoffs(),
-                                                                    &GlobalC::GridD,
+                                                                    &grid_d,
                                                                     PARAM.inp.nspin);
                 this->getOperator()->add(veff);
             }
@@ -262,9 +262,7 @@ HamiltLCAO<TK, TR>::HamiltLCAO(Gint_Gamma* GG_in,
                                                                      orb.cutoffs(),
                                                                      &grid_d,
                                                                      PARAM.inp.nspin);
-                // reset spin index and real space Hamiltonian matrix
-                int start_spin = -1;
-                GK_in->reset_spin(start_spin);
+
             }
         }
 
@@ -405,6 +403,7 @@ HamiltLCAO<TK, TR>::HamiltLCAO(Gint_Gamma* GG_in,
         // and calculate Cs, Vs
         Operator<TK>* exx = new OperatorEXX<OperatorLCAO<TK, TR>>(this->hsk,
                                                                   this->hR,
+                                                                  ucell,
                                                                   *this->kv,
                                                                   Hexxd,
                                                                   Hexxc,

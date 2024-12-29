@@ -23,7 +23,7 @@ void test_deepks::check_dstable()
     // this->compare_with_ref("S_I_mu_alpha.dat","S_I_mu_alpha_ref.dat");
 }
 
-void test_deepks::check_psialpha()
+void test_deepks::check_phialpha()
 {
     std::vector<int> na;
     na.resize(ucell.ntype);
@@ -31,16 +31,18 @@ void test_deepks::check_psialpha()
     {
         na[it] = ucell.atoms[it].na;
     }
-    GlobalC::ld.init(ORB, ucell.nat, ucell.ntype, ParaO, na);
+    GlobalC::ld.init(ORB, ucell.nat, ucell.ntype, kv.nkstot, ParaO, na);
 
-    GlobalC::ld.build_psialpha(PARAM.input.cal_force, ucell, ORB, Test_Deepks::GridD, overlap_orb_alpha_);
+    GlobalC::ld.allocate_phialpha(PARAM.input.cal_force, ucell, ORB, Test_Deepks::GridD);
 
-    GlobalC::ld.check_psialpha(PARAM.input.cal_force, ucell, ORB, Test_Deepks::GridD);
+    GlobalC::ld.build_phialpha(PARAM.input.cal_force, ucell, ORB, Test_Deepks::GridD, overlap_orb_alpha_);
 
-    this->compare_with_ref("psialpha.dat", "psialpha_ref.dat");
-    this->compare_with_ref("dpsialpha_x.dat", "dpsialpha_x_ref.dat");
-    this->compare_with_ref("dpsialpha_y.dat", "dpsialpha_y_ref.dat");
-    this->compare_with_ref("dpsialpha_z.dat", "dpsialpha_z_ref.dat");
+    GlobalC::ld.check_phialpha(PARAM.input.cal_force, ucell, ORB, Test_Deepks::GridD);
+
+    this->compare_with_ref("phialpha.dat", "phialpha_ref.dat");
+    this->compare_with_ref("dphialpha_x.dat", "dphialpha_x_ref.dat");
+    this->compare_with_ref("dphialpha_y.dat", "dphialpha_y_ref.dat");
+    this->compare_with_ref("dphialpha_z.dat", "dphialpha_z_ref.dat");
 }
 
 void test_deepks::read_dm()
@@ -144,10 +146,10 @@ void test_deepks::check_pdm()
         this->read_dm_k(kv.nkstot);
         this->set_dm_k_new();
         this->set_p_elec_DM_k();
-        GlobalC::ld.cal_projected_DM_k(p_elec_DM_k, ucell, ORB, Test_Deepks::GridD);
+        GlobalC::ld.cal_projected_DM(p_elec_DM_k, ucell, ORB, Test_Deepks::GridD);
     }
     GlobalC::ld.check_projected_dm();
-    this->compare_with_ref("deepks_projdm.dat", "pdm_ref.dat");
+    this->compare_with_ref("pdm.dat", "pdm_ref.dat");
 }
 
 void test_deepks::check_gdmx()
@@ -155,11 +157,11 @@ void test_deepks::check_gdmx()
     GlobalC::ld.init_gdmx(ucell.nat);
     if (PARAM.sys.gamma_only_local)
     {
-        GlobalC::ld.cal_gdmx(dm_new[0], ucell, ORB, Test_Deepks::GridD, 0);
+        GlobalC::ld.cal_gdmx(dm_new, ucell, ORB, Test_Deepks::GridD, kv.nkstot, kv.kvec_d, GlobalC::ld.phialpha, 0);
     }
     else
     {
-        GlobalC::ld.cal_gdmx_k(dm_k_new, ucell, ORB, Test_Deepks::GridD, kv.nkstot, kv.kvec_d, 0);
+        GlobalC::ld.cal_gdmx(dm_k_new, ucell, ORB, Test_Deepks::GridD, kv.nkstot, kv.kvec_d, GlobalC::ld.phialpha, 0);
     }
     GlobalC::ld.check_gdmx(ucell.nat);
 
@@ -192,7 +194,7 @@ void test_deepks::check_descriptor()
 {
     GlobalC::ld.cal_descriptor(ucell.nat);
     GlobalC::ld.check_descriptor(ucell,"./");
-    this->compare_with_ref("deepks_desc.dat", "descriptor_ref.dat");
+    this->compare_with_ref("descriptor.dat", "descriptor_ref.dat");
 }
 
 void test_deepks::check_gvx()
@@ -229,7 +231,7 @@ void test_deepks::check_edelta()
     GlobalC::ld.load_model("model.ptg");
     if (PARAM.sys.gamma_only_local)
     {
-        GlobalC::ld.allocate_V_delta(ucell.nat);
+        GlobalC::ld.allocate_V_delta(ucell.nat, 1); // 1 for gamma-only
     }
     else
     {
@@ -290,12 +292,12 @@ void test_deepks::check_e_deltabands()
     if (PARAM.sys.gamma_only_local)
     {
         this->cal_H_V_delta();
-        GlobalC::ld.cal_e_delta_band(dm_new);
+        GlobalC::ld.cal_e_delta_band(dm_new,1);
     }
     else
     {
         this->cal_H_V_delta_k();
-        GlobalC::ld.cal_e_delta_band_k(dm_k_new, kv.nkstot);
+        GlobalC::ld.cal_e_delta_band(dm_k_new, kv.nkstot);
     }
 
     std::ofstream ofs("E_delta_bands.dat");
@@ -304,21 +306,51 @@ void test_deepks::check_e_deltabands()
     this->compare_with_ref("E_delta_bands.dat", "E_delta_bands_ref.dat");
 }
 
-void test_deepks::check_f_delta()
+void test_deepks::check_f_delta_and_stress_delta()
 {
     ModuleBase::matrix svnl_dalpha;
     svnl_dalpha.create(3, 3);
+    const int cal_stress = 1;
     if (PARAM.sys.gamma_only_local)
     {
-        DeePKS_domain::cal_f_delta_gamma(dm_new, ucell, ORB, Test_Deepks::GridD, ParaO, GlobalC::ld.lmaxd, GlobalC::ld.nlm_save, GlobalC::ld.gedm, GlobalC::ld.inl_index, GlobalC::ld.F_delta, 1, svnl_dalpha);
+        const int nks = 1;
+        DeePKS_domain::cal_f_delta<double>(dm_new,
+                                           ucell,
+                                           ORB,
+                                           Test_Deepks::GridD,
+                                           ParaO,
+                                           GlobalC::ld.lmaxd,
+                                           nks,
+                                           kv.kvec_d,
+                                           GlobalC::ld.phialpha,
+                                           GlobalC::ld.gedm,
+                                           GlobalC::ld.inl_index,
+                                           GlobalC::ld.F_delta,
+                                           cal_stress,
+                                           svnl_dalpha);
     }
     else
     {
-        DeePKS_domain::cal_f_delta_k(dm_k_new, ucell, ORB, Test_Deepks::GridD, ParaO, GlobalC::ld.lmaxd, kv.nkstot, kv.kvec_d, GlobalC::ld.nlm_save_k, GlobalC::ld.gedm, GlobalC::ld.inl_index, GlobalC::ld.F_delta, 1, svnl_dalpha);
+        const int nks = kv.nkstot;
+        DeePKS_domain::cal_f_delta<std::complex<double>>(dm_k_new,
+                                           ucell,
+                                           ORB,
+                                           Test_Deepks::GridD,
+                                           ParaO,
+                                           GlobalC::ld.lmaxd,
+                                           nks,
+                                           kv.kvec_d,
+                                           GlobalC::ld.phialpha,
+                                           GlobalC::ld.gedm,
+                                           GlobalC::ld.inl_index,
+                                           GlobalC::ld.F_delta,
+                                           cal_stress,
+                                           svnl_dalpha);
     }
     DeePKS_domain::check_f_delta(ucell.nat, GlobalC::ld.F_delta, svnl_dalpha);
 
     this->compare_with_ref("F_delta.dat", "F_delta_ref.dat");
+    this->compare_with_ref("stress_delta.dat", "stress_delta_ref.dat");
 }
 
 void test_deepks::compare_with_ref(const std::string f1, const std::string f2)
