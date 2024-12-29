@@ -308,6 +308,9 @@ void test_deepks::check_e_deltabands()
 
 void test_deepks::check_f_delta_and_stress_delta()
 {
+    ModuleBase::matrix fvnl_dalpha;
+    fvnl_dalpha.create(ucell.nat, 3);
+
     ModuleBase::matrix svnl_dalpha;
     svnl_dalpha.create(3, 3);
     const int cal_stress = 1;
@@ -325,7 +328,7 @@ void test_deepks::check_f_delta_and_stress_delta()
                                            GlobalC::ld.phialpha,
                                            GlobalC::ld.gedm,
                                            GlobalC::ld.inl_index,
-                                           GlobalC::ld.F_delta,
+                                           fvnl_dalpha,
                                            cal_stress,
                                            svnl_dalpha);
     }
@@ -343,11 +346,11 @@ void test_deepks::check_f_delta_and_stress_delta()
                                            GlobalC::ld.phialpha,
                                            GlobalC::ld.gedm,
                                            GlobalC::ld.inl_index,
-                                           GlobalC::ld.F_delta,
+                                           fvnl_dalpha,
                                            cal_stress,
                                            svnl_dalpha);
     }
-    DeePKS_domain::check_f_delta(ucell.nat, GlobalC::ld.F_delta, svnl_dalpha);
+    DeePKS_domain::check_f_delta(ucell.nat, fvnl_dalpha, svnl_dalpha);
 
     this->compare_with_ref("F_delta.dat", "F_delta_ref.dat");
     this->compare_with_ref("stress_delta.dat", "stress_delta_ref.dat");
