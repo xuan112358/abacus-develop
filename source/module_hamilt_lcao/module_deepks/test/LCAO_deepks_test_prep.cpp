@@ -183,6 +183,8 @@ void test_deepks::set_orbs()
                         PARAM.input.cal_force,
                         my_rank);
 
+    ucell.infoNL.setupNonlocal(ucell.ntype, ucell.atoms, GlobalV::ofs_running, ORB);
+
     std::vector<std::string> file_orb(ntype);
     std::transform(ucell.orbital_fn, ucell.orbital_fn + ntype, file_orb.begin(), [](const std::string& file) {
         return PARAM.inp.orbital_dir + file;
