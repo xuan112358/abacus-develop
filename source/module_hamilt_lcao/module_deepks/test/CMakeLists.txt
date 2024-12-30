@@ -33,7 +33,7 @@ add_executable(
 target_link_libraries(
     test_deepks
     base device  parameter deepks psi planewave neighbor container
-    orb gint numerical_atomic_orbitals
+    orb gint numerical_atomic_orbitals paw
     ${math_libs}
 )
 
