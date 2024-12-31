@@ -194,7 +194,7 @@ void test_deepks::check_descriptor()
 {
     GlobalC::ld.cal_descriptor(ucell.nat);
     GlobalC::ld.check_descriptor(ucell,"./");
-    this->compare_with_ref("descriptor.dat", "descriptor_ref.dat");
+    this->compare_with_ref("deepks_desc.dat", "descriptor_ref.dat");
 }
 
 void test_deepks::check_gvx()
