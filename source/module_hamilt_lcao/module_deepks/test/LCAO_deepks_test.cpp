@@ -1,6 +1,9 @@
 #include "LCAO_deepks_test.h"
 #define private public
 #include "module_parameter/parameter.h"
+
+#include <torch/script.h>
+#include <torch/torch.h>
 #undef private
 #include "module_hamilt_lcao/hamilt_lcaodft/hs_matrix_k.hpp"
 #include "module_hamilt_lcao/hamilt_lcaodft/operator_lcao/deepks_lcao.h"
@@ -199,7 +202,9 @@ void test_deepks::check_descriptor()
 
 void test_deepks::check_gvx()
 {
-    GlobalC::ld.cal_gvx(ucell.nat);
+    std::vector<torch::Tensor> gevdm;
+    GlobalC::ld.cal_gevdm(ucell.nat, gevdm);
+    GlobalC::ld.cal_gvx(ucell.nat, gevdm);
     GlobalC::ld.check_gvx(ucell.nat);
 
     for (int ia = 0; ia < ucell.nat; ia++)
