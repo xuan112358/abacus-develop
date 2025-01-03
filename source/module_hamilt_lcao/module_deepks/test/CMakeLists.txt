@@ -2,6 +2,8 @@ add_executable(
     test_deepks
     main_deepks.cpp klist_1.cpp LCAO_deepks_test_prep.cpp LCAO_deepks_test.cpp
     ../../../module_cell/unitcell.cpp
+    ../../../module_cell/update_cell.cpp
+    ../../../module_cell/bcast_cell.cpp
     ../../../module_cell/atom_spec.cpp
     ../../../module_cell/atom_pseudo.cpp
     ../../../module_cell/read_atoms.cpp
